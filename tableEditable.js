@@ -163,17 +163,34 @@
 				});
 			}
 		});
-		$('#add').click(function() { 
+		$('#add').click(function() {
 			var table = $('#table_1');
 			
 			var body = '<tr>';
 			
 			$(elem + ' > thead  > tr > th').not(':last').each(function(index, th) {
 				body += "<td>";
-				if($(this).data("editable") == 0){
-					body += "<input type='text' class='form-control' value='' readonly>";
+				var editable = true;
+				if($(this).data("editable") == false){
+					editable = false;
+				}
+				var select = false;
+				if($(this).data("select") == true){
+					select = true;
+				}
+				if(editable){
+					if(select){
+						body += "<select class='form-control'>";
+						var selector = options.json[$(this).data('selector')];
+						selector.forEach(function(obj){
+							body += "<option value='" + obj.id + "'>" + obj.name + "</option>";
+						});
+						body += "</select>";
+					}else{
+						body += "<input type='text' name='name' class='form-control' value=''>";
+					}
 				}else{
-					body += "<input type='text' name='name' class='form-control' value=''>";
+					body += "<input type='text' class='form-control' value='' readonly>";
 				}
 				body += "</td>"
 			});
