@@ -113,6 +113,7 @@
 				type: 'POST',
 				url: edit,
 				data: dataString,
+				dataType: 'json',
 				success: function(response){
 					value = response.success;
 					if(value == true){
