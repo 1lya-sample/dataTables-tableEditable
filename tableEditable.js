@@ -17,7 +17,7 @@
 		var filter = elem + "_filter";
 		$(filter).append('<a class="btn" id="add">+</a>');
 		
-		$(this).on('init.dt', function(){
+		function update() {
 			$(elem +' > thead  > tr > th').each(function(index, th) {
 				if($(this).data("select") == true){
 					var selector = options.json[$(this).data('selector')];
@@ -39,7 +39,9 @@
 					});
 				}
 			});
-		});
+		}
+		
+		$(this).on('init.dt', update);
 		
 		$(this).on('click', '#edit', function(){
 			$(this).attr("id", "save");
@@ -117,7 +119,9 @@
 				success: function(response){
 					value = response.success;
 					if(value == true){
-						dataTable.ajax.reload();
+						dataTable.ajax.reload(function(){ 
+							update();
+						});
 					}
 				}
 			});
@@ -151,7 +155,9 @@
 						value = response.success;
 						if(value == true){
 							tr.remove();
-							dataTable.ajax.reload();
+							dataTable.ajax.reload(function(){ 
+								update();
+							});
 						}
 					}
 				});
@@ -209,7 +215,9 @@
 				success: function(response){
 					value = response.success;
 					if(value == true){
-						dataTable.ajax.reload();
+						dataTable.ajax.reload(function(){ 
+							update();
+						});
 					}
 				}
 			});
