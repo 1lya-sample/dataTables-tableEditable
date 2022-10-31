@@ -29,7 +29,7 @@
 							if(index == cellindex){
 								var id = $(this).text();
 								var td = $(this);
-								selector.forEach(function(obj){
+								$.each(selector, function(obj){
 									if(obj.id == id){
 										$(td).html(obj.name);
 									}
@@ -66,8 +66,8 @@
 				if(editable){
 					if(select){
 						var input = "<select class='form-control'>";
-						var selector = options.json.selector1;
-						selector.forEach(function(obj){
+						var selector = options.json[$(this).data('selector')];
+						$.each(selector, function(obj){
 							var selected = "";
 							if(obj.name == val){
 								selected = "selected";
@@ -182,7 +182,7 @@
 					if(select){
 						body += "<select class='form-control'>";
 						var selector = options.json[$(this).data('selector')];
-						selector.forEach(function(obj){
+						$.each(selector, function(obj){
 							body += "<option value='" + obj.id + "'>" + obj.name + "</option>";
 						});
 						body += "</select>";
