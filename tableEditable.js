@@ -51,14 +51,17 @@
 				var cellindex = $(this).parent().children().index($(this));
 				var editable = true;
 				var select = false;
-				$(elem +' > thead  > tr > th').each(function(index, th) { 
+				var selector = '';
+				$(elem +' > thead  > tr > th').each(function(index, th) {
 					if(index == cellindex){
 						if($(this).data("editable") == false){
 							editable = false;
 						}
 						if($(this).data("select") == true){
 							select = true;
+							selector = options.json[$(this).data('selector')];
 						}
+						
 					}
 				});
 				
@@ -66,7 +69,6 @@
 				if(editable){
 					if(select){
 						var input = "<select class='form-control'>";
-						var selector = options.json[$(this).data('selector')];
 						selector.forEach(function(obj){
 							var selected = "";
 							if(obj.name == val){
