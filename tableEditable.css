@@ -29,3 +29,10 @@
     background-color: #2754e6;
     border-color: #2754e6;
 }
+
+.te-buttons {
+    gap: 3px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
