@@ -38,7 +38,7 @@ $query = $db->prepare("SELECT * FROM users");
 $query->execute();
 $result = $query->fetchAll();
 foreach($result as &$user){
-	$data[] = array($user["id"], $user['name'], $user['email'], "<a class='btn' id='edit'><i class='fa fa-edit'></i></a> <a class='btn' id='delete'><i class='fa fa-trash'></i></a>");
+	$data[] = array($user["id"], $user['name'], $user['email'], "<div class='te-buttons'><a class='btn' id='edit'><i class='fa fa-edit'></i></a> <a class='btn' id='delete'><i class='fa fa-trash'></i></a></div>");
 }
 echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 ?>
