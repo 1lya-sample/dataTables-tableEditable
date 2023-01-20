@@ -14,8 +14,10 @@
 		
 		var dataTable = $(this).DataTable();
 		var elem = '#' + $(this)[0].id;
-		var filter = elem + "_filter";
-		$(filter).append('<a class="btn" id="add">+</a>');
+		if(options.options.add != false){
+			var filter = elem + "_filter";
+			$(filter).append('<a class="btn" id="add">+</a>');
+		}
 		
 		function update() {
 			$(elem +' > thead  > tr > th').each(function(index, th) {
