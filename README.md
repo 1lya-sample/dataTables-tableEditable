@@ -1,4 +1,4 @@
-# tableEditable v1.3 dataTables
+# tableEditable v1.3.2 dataTables
 Plugin for dataTables - tableEditable by me
 
 ## 1. Installing
