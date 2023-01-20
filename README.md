@@ -123,6 +123,14 @@ json: {
 You can add entries, change the id and name as you like, the main thing is that the two keys id and name remain. Selector1 - it's name that you indicated in thead. Id 
 should equal what values you pass through get.php to dataTable, cause the plugin, when it is launched, substitutes the names that we just indicated into the table.
 
+### Options
+You can turn off, and turn on some options on plugin.
+```
+options: {
+  add: false
+},
+```
+
 ### Strings
 All strings you can change in the tableEditable.js, but I also added the ability to change the string that is displayed in the 'confirm' window when you click the delete button in the table. Just add this to the plugin options:
 ```
