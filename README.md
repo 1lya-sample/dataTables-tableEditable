@@ -1,98 +1,138 @@
-# tableEditable v1.4.0 dataTables
-Plugin for dataTables - tableEditable by me
+# dataTables.tableEditable v1.4.0
+Plugin for dataTables by me
+Depends: JQuery, DataTables, Bootstrap (Optional)
 
 Demo: https://1lya-sample.ml/tableEditable
 
 ## 1. Installing
-1. Download dataTables lib and install a dataTable in var with ajax getting data
+1. Install dependency scripts to the page
 ```
-var dataTable = $("#table_1").DataTable({
-  ajax: {
-    url: "get.php",
-    dataSrc: ""
-  },
-});
+<!-- Datatables -->
+<link href="/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
+<link href="/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css">
+<link href="/css/tableEditable.css" rel="stylesheet" type="text/css">
+
+<!-- Required datatable js -->
+<script src="/js/jquery.dataTables.min.js"></script>
+<script src="/js/dataTables.bootstrap4.min.js"></script>
+<script src="/js/tableEditable.js"></script>
 ```
-2. Modify your table's thead:
+2. Create table (You can use any table identifier)
 ```
-<th data-name="id" data-editable="0">ID</th>
-<th data-name="name">Name</th>
-<th data-name="email">Email</th>
+<table id="table_1">
+ <thead>
+  <tr>
+   <th data-name="id" data-editable="0">ID</th>
+   <th data-name="name">Name</th>
+   <th data-name="email">Email</th>
+   <th data-name="roleID" data-select="1" data-selector="selector1">Role</th>
+   <th></th>
+  </tr>
+ </thead>
+ <tbody></tbody>
+</table>
 ```
 data-name is using to sending it with the post requests, but you can remove this and th will be only decoration
 
-data-editable of course, using to block editable. Use one or more on-editable th'es to identify your table entry in the ajax files
+data-editable is using to block editable. Use one or more on-editable th'es to identify your table entry in the ajax files
 
-Also add this to end of thead:
+This th is required for buttons Edit and Delete, don't forget it
+> <th></th>
+3. Setup dataTable in variable with an endpoint for getting data in a table
 ```
-<th></th>
+const dataTable = $("#table_1").DataTable({
+ ajax: {
+  url: "get.php",
+   dataSrc: ""
+ },
+ columnDefs: [
+  {
+    targets: [4],
+    orderable: false,
+  },
+ ],
+});
 ```
-3. Create file that can pass data to dataTable. In last array string add:
-```
-<a class='btn' id='edit'><i class='fa fa-edit'></i></a> <a class='btn' id='delete'><i class='fa fa-trash'></i></a>
-```
-For example with PDO:
+In columnDefs insert the index of your column in the table in which the buttons are provided, previously we left it empty to avoid bad sorting behind identical fields
+
+Example PDO table get data endpoint:
 ```
 <?php
 include "connection.php";
-$data = array();
-$query = $db->prepare("SELECT * FROM users");
+
+$data = [];
+$query = $db->prepare("SELECT * FROM tableEditable");
 $query->execute();
 $result = $query->fetchAll();
 foreach($result as &$user){
-	$data[] = array($user["id"], $user['name'], $user['email'], "<div class='te-buttons'><a class='btn' id='edit'><i class='fa fa-edit'></i></a> <a class='btn' id='delete'><i class='fa fa-trash'></i></a></div>");
+	$data[] = [
+		$user["id"],
+		$user["name"],
+		$user['email'],
+		$user['roleID'],
+		''
+	];
 }
+
 echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
 ?>
 ```
-2. Download tableEditable plugin and set scripts after jquery's && dataTable's links
-```
-<!-- Datatables -->
-<link href="tableEditable.css" rel="stylesheet" type="text/css">
-<script src="tableEditable.js"></script>
-```
-3. Initialize tableEditable plugin and setup path to ajax. After taking actions in the table using the plugin, all relevant POST requests will be sent there
+4. Make api for your editable table (Add, Edit, Delete endpoints) and initialize tableEditable plugin and setup endpoints
+
+All requests are sent as POST to the endpoints you specified in the ajax object.
 ```
 <script>
 $("#table_1").tableEditable({
   ajax: {
-    add: "add.php",
-    edit: "edit.php",
-    delete: delete.php"
+    add: "ajax/add.php",
+    edit: "ajax/edit.php",
+    delete: ajax/delete.php"
   },
 });
 </script>
 ```
-4. Create that files. For example file edit.php:
+ 
+Example Add endpoint:
 ```
 <?php
 include "connection.php";
-if(!empty($_POST['data'])){
-	$data = json_decode($_POST['data'],true);
-	if(!empty($data['id']) && !empty($data['login']) && isset($data['roleID'])){
-		$query = $db->prepare("UPDATE users SET name = :name, email = :email WHERE id = :id");
-		$query->execute([':name' => $data['name'], ':email' => $data['email'], ':id' => $data['id']]);
-		echo json_encode(array("success" => true));
-	}
+
+if(!empty($_POST['name']) && !empty($_POST['email'])){
+	$query = $db->prepare("INSERT INTO tableEditable (name, email, roleID, registerDate) VALUES (:name, :email, :roleID, :time)");
+	$query->execute([':name' => $_POST['name'], ':email' => $_POST['email'], ':roleID' => $_POST['roleID'], ':time' => time()]);
+	exit(json_encode(array("success" => true)));
 }
 ?>
 ```
-The plugin sends to $_POST['data'] all the data specified in the table. This was done to avoid ajax conflicts with special characters like "&", "+", etc.
+All responses plugin perceives by {"success": *status*}. If it's not true, nothing will happen.
 
-All responses plugin tableEditable perceives by {"success": *status*}. If it's not *true*, nothing will happen.
-
-5. Also you can block ordering by last column with buttons, but this doesn't affect the operation of the plugin, only visually.
-
-Add in tableEditable({}) this after ajax string:
+Example Edit endpoint:
 ```
-columnDefs: [
-  {
-    targets: [3],
-    orderable: false,
-  },
-],
+<?php
+include "incl/connection.php";
+
+if(!empty($_POST['id']) && !empty($_POST['name']) && !empty($_POST['email']) && isset($_POST['roleID'])){
+	$query = $db->prepare("UPDATE tableEditable SET name = :name, email = :email, roleID = :roleID WHERE id = :id");
+	$query->execute([':name' => $_POST['name'], ':email' => $_POST['email'], ':roleID' => $_POST['roleID'], ':id' => $_POST['id']]);
+	exit(json_encode(array("success" => true)));
+}
+
+?>
 ```
-where 3 may be your count column number starting from 0. If you specify a number that is greater than the number of columns of the table, it will not work (in my experience).
+
+Example Delete endpoint:
+```
+<?php
+include "../../incl/connection.php";
+
+if(!empty($_POST['id'])){
+	$query = $db->prepare("DELETE FROM tableEditable WHERE id = :id");
+	$query->execute([':id' => $_POST['id']]);
+	exit(json_encode(array("success" => true)));
+}
+?>
+```
+
 ## 2. Custom
 Since the plugin is open source, you can change anything in it if you understand javascript of course. I just made a start model of what you might need.
 
