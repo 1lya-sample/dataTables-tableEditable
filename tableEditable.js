@@ -1,32 +1,28 @@
 (function($) {
 
 	$.fn.tableEditable = function(options) {
-		var add = options.ajax.add;
-		var edit = options.ajax.edit;
-		var del = options.ajax.delete;
-		
-		var delconfirm = 'Are you sure?';
-		if(options.strings){
-			if(options.strings.confirm){
-				delconfirm = options.strings.confirm;
+		const table = this;
+		var dataTable = table.DataTable();
+
+		table.on('init.dt', function (){
+			if(options.options.add != false){
+				table.closest('.dataTables_wrapper').find('.dataTables_filter').append(options.buttons.add);
 			}
-		}
-		
-		var dataTable = $(this).DataTable();
-		var elem = '#' + $(this)[0].id;
-		if(options.options.add != false){
-			var filter = elem + "_filter";
-			$(filter).append('<a class="btn" id="add">+</a>');
-		}
+			
+			update();
+		});
 		
 		function update() {
-			$(elem +' > thead  > tr > th').each(function(index, th) {
+			$.each(table.find('tbody tr'), function(){
+				if(dataTable.data().any()){
+					$(this).children('td:last').html(options.buttons.default);
+				}
+			});
+			$.each(table.find('thead tr th').not(':last'), function(index, th) {
 				if($(this).data("select") == true){
 					var selector = options.json[$(this).data('selector')];
-					var trs = $(elem +' > tbody').find('tr');
-					$.each(trs, function(){
-						var tds = $(this).children('td');
-						$.each(tds, function(){
+					$.each(table.find('tbody tr'), function(){
+						$.each($(this).children('td'), function(){
 							var cellindex = $(this).parent().children().index($(this));
 							if(index == cellindex){
 								var id = $(this).text();
@@ -43,34 +39,32 @@
 			});
 		}
 		
-		$(this).on('init.dt', update);
-		
-		$(this).on('click', '#edit', function(){
+		table.on('click', '#edit', function(){
 			$(this).attr("id", "save");
-			
-			var tds = $(this).closest("tr").find('td').not(':last');
-			$.each(tds, function(){
+
+			$.each($(this).closest('tr').find('td').not(':last'), function(){
 				var cellindex = $(this).parent().children().index($(this));
 				var editable = true;
 				var select = false;
 				var selector = '';
-				$(elem +' > thead  > tr > th').each(function(index, th) {
+				$.each(table.find('thead tr th').not(':last'), function(index, th) {
 					if(index == cellindex){
 						if($(this).data("editable") == false){
 							editable = false;
 						}
+						
 						if($(this).data("select") == true){
 							select = true;
 							selector = options.json[$(this).data('selector')];
 						}
-						
 					}
 				});
 				
+				var input = '';
 				var val = $(this).html();
-				if(editable){
-					if(select){
-						var input = "<select class='form-control'>";
+				if(editable == true){
+					if(select == true){
+						input = "<select class='form-control'>";
 						selector.forEach(function(obj){
 							var selected = "";
 							if(obj.name == val){
@@ -80,23 +74,20 @@
 						});
 						input += "</select>";
 					}else{
-						var input = "<input type='text' name='name' class='form-control' value='"+val+"'>";
+						input = "<input type='text' name='name' class='form-control' value='"+val+"'>";
 					}
 				}else{
-					var input = "<input type='text' class='form-control' value='"+val+"' readonly>";
+					input = "<input type='text' class='form-control' value='"+val+"' readonly>";
 				}
 				$(this).html(input);
 			});
 			
-			$(this).html('<i class="fa fa-check"></i>');
+			$(this).closest('td').html(options.buttons.editing);
 		});
-		$(this).on('click', '#save', function(){
-			var tr = $(this).closest('tr');
-			var tds = $(tr).find('td').not(':last');
-			
-			var array = {};
-		  
-			$.each(tds, function(){
+		
+		table.on('click', '#save', function(){
+			var formData = new FormData();
+			$.each($(this).closest('tr').find('td').not(':last'), function(){
 				if(!$(this).children().is("select")){
 					var input = $(this).children().val();
 					var value = input;
@@ -104,22 +95,23 @@
 					var input = $(this).children().find(":selected").text();
 					var value = $(this).children().find(":selected").val();
 				}
+				
 				$(this).html(input);
 				var cellindex = $(this).parent().children().index($(this));
-				$(elem + ' > thead  > tr > th').each(function(index, th) { 
+				$.each(table.find('thead tr th').not(':last'), function(index, th) {
 					if(index == cellindex && $(this).data("name")){
-						array[$(this).data("name")] = value;
+						formData.append($(this).data("name"), value);
 					}
 				});
 			});
 			
-			var dataString = "&data=" + encodeURIComponent(JSON.stringify(array));
-
 			$.ajax({
 				type: 'POST',
-				url: edit,
-				data: dataString,
+				url: options.ajax.edit,
+				data: formData,
 				dataType: 'json',
+				processData: false,
+				contentType: false,
 				success: function(response){
 					value = response.success;
 					if(value == true){
@@ -129,32 +121,33 @@
 					}
 				}
 			});
+			
 			$(this).attr("id", "edit");
-			$(this).html('<i class="fa fa-edit"></i>');
+			$(this).closest('td').html(options.buttons.default);
 		});
-		$(this).on('click', '#delete', function(){
-			if (confirm(delconfirm) == true) {
-				var tr = $(this).closest('tr');
-				var tds = $(tr).find('td').not(':last');
-				
-				var array = {};
-			  
-				$.each(tds, function(){
+		table.on('click', '#delete', function(){
+			var confirm_delete = options.strings && options.strings.confirm != '' ? options.strings.confirm : 'Are you sure?';
+			
+			var tr = $(this).closest('tr');
+			if (confirm(confirm_delete) == true) {				
+				var formData = new FormData();
+				$.each(tr.find('td').not(':last'), function(){
 					var value = $(this).text();
 					var cellindex = $(this).parent().children().index($(this));
-					$(elem + ' > thead  > tr > th').each(function(index, th) {
+					$.each(table.find('thead tr th').not(':last'), function(index, th) {
 						if(index == cellindex && $(this).data("name")){
-							array[$(this).data("name")] = value;
+							formData.append($(this).data("name"), value);
 						}
 					});
 				});
-
-				var dataString = "&data=" + encodeURIComponent(JSON.stringify(array));
+				
 				$.ajax({
 					type: 'POST',
-					url: del,
-					data: dataString,
+					url: options.ajax.delete,
+					data: formData,
 					dataType: 'json',
+					processData: false,
+					contentType: false,
 					success: function(response){
 						value = response.success;
 						if(value == true){
@@ -167,49 +160,38 @@
 				});
 			}
 		});
-		$('#add').click(function() {
-			var table = $('#table_1');
+		
+		table.closest('.dataTables_wrapper').on('click', '#add', function(){
+			var tr = '<tr>';
 			
-			var body = '<tr>';
-			
-			$(elem + ' > thead  > tr > th').not(':last').each(function(index, th) {
-				body += "<td>";
-				var editable = true;
-				if($(this).data("editable") == false){
-					editable = false;
-				}
-				var select = false;
-				if($(this).data("select") == true){
-					select = true;
-				}
-				if(editable){
-					if(select){
-						body += "<select class='form-control'>";
+			$.each(table.find('thead tr th').not(':last'), function(index, th) {
+				tr += "<td>";
+				var editable = $(this).data("editable") == false ? false : true;
+				var select = $(this).data("select") == true ? true : false;
+
+				if(editable == true){
+					if(select == true){
+						tr += "<select class='form-control'>";
 						var selector = options.json[$(this).data('selector')];
 						selector.forEach(function(obj){
-							body += "<option value='" + obj.id + "'>" + obj.name + "</option>";
+							tr += "<option value='" + obj.id + "'>" + obj.name + "</option>";
 						});
-						body += "</select>";
+						tr += "</select>";
 					}else{
-						body += "<input type='text' name='name' class='form-control' value=''>";
+						tr += "<input type='text' name='name' class='form-control' value=''>";
 					}
 				}else{
-					body += "<input type='text' class='form-control' value='' readonly>";
+					tr += "<input type='text' class='form-control' value='' readonly>";
 				}
-				body += "</td>"
+				tr += "</td>"
 			});
-			body += '<td><a class="btn" id="save_new"><i class="fa fa-check"></i></a> <a class="btn" id="delete_new"><i class="fa fa-trash"></i></a></td>'
-			body += '</tr>';
+			tr += '<td>'+options.buttons.adding+'</td></tr>';
 		
-			table.prepend($(body));
+			table.prepend(tr);
 		});
 		$(this).on('click', '#save_new', function() {
-			var tr = $(this).closest('tr');
-			var tds = $(tr).find('td').not(':last');
-			
-			var array = {};
-		  
-			$.each(tds, function(){
+			var formData = new FormData();
+			$.each($(this).closest('tr').find('td').not(':last'), function(){
 				if(!$(this).children().is("select")){
 					var input = $(this).children().val();
 					var value = input;
@@ -217,22 +199,23 @@
 					var input = $(this).children().find(":selected").text();
 					var value = $(this).children().find(":selected").val();
 				}
+				
 				$(this).html(input);
 				var cellindex = $(this).parent().children().index($(this));
-				$('#table_1 > thead  > tr > th').each(function(index, th) { 
+				$.each(table.find('thead tr th').not(':last'), function(index, th) {
 					if(index == cellindex && $(this).data("name")){
-						array[$(this).data("name")] = value;
+						formData.append($(this).data("name"), value);
 					}
 				});
 			});
 			
-			var dataString = "&data=" + encodeURIComponent(JSON.stringify(array));
-
 			$.ajax({
 				type: 'POST',
-				url: add,
-				data: dataString,
+				url: options.ajax.add,
+				data: formData,
 				dataType: 'json',
+				processData: false,
+				contentType: false,
 				success: function(response){
 					value = response.success;
 					if(value == true){
@@ -242,12 +225,13 @@
 					}
 				}
 			});
+			
 			$(this).attr("id", "edit");
-			$(this).html('<i class="fa fa-edit"></i>');
+			$(this).closest('td').html(options.buttons.default);
 		});
-		$(this).on('click', '#delete_new', function() {
-			var tr = $(this).closest('tr');
-			tr.remove();
+
+		table.on('click', '#delete_new', function() {
+			$(this).closest('tr').remove();
 		});
 	}
 }(jQuery));
