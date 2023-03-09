@@ -5,7 +5,8 @@
 		var dataTable = table.DataTable();
 
 		table.on('init.dt', function (){
-			if(options.options.add != false){
+			enabled_add = options.options && options.options.add == false ? false : true
+			if(enabled_add != false){
 				table.closest('.dataTables_wrapper').find('.dataTables_filter').append(options.buttons.add);
 			}
 			
