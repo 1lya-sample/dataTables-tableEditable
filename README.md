@@ -91,7 +91,7 @@ $("#table_1").tableEditable({
   ajax: {
     add: "ajax/add.php",
     edit: "ajax/edit.php",
-    delete: ajax/delete.php"
+    delete: "ajax/delete.php"
   },
   buttons: {
    default: '<div class="te-buttons"><a class="btn" id="edit">Edit</a> <a class="btn" id="delete">Del</a></div>',
