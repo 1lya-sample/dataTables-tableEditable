@@ -6,7 +6,7 @@ Demo: https://1lya-sample.ml/tableEditable
 
 ## 1. Get started
 1. Install dependency scripts to the page
-```
+```html
 <!-- Datatables -->
 <link href="/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css">
 <link href="/css/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css">
@@ -19,7 +19,7 @@ Demo: https://1lya-sample.ml/tableEditable
 ```
 
 2. Create table (You can use any table identifier)
-```
+```html
 <table id="table_1">
  <thead>
   <tr>
@@ -37,14 +37,14 @@ data-name is using to sending it with the post requests, but you can remove this
 data-editable is using to block editable. Use one or more on-editable th'es to identify your table entry in the ajax files
 
 This th is required for buttons Edit and Delete, don't forget it
-```
+```html
 <th></th>
 ```
 
 Selectors are described in detail at the bottom of this readme.
 
 3. Setup dataTable in variable with an endpoint for getting data in a table
-```
+```javascript
 const dataTable = $("#table_1").DataTable({
  ajax: {
   url: "get.php",
@@ -61,7 +61,7 @@ const dataTable = $("#table_1").DataTable({
 In columnDefs insert the index of your column in the table in which the buttons are provided, previously we left it empty to avoid bad sorting behind identical fields
 
 Example PDO table get data endpoint:
-```
+```php
 <?php
 include "connection.php";
 
@@ -85,7 +85,7 @@ echo json_encode($data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_
 4. Make api for your editable table (Add, Edit, Delete endpoints) and initialize tableEditable plugin and setup endpoints
 
 All requests are sent as POST to the endpoints you specified in the ajax object.
-```
+```php
 <script>
 $("#table_1").tableEditable({
   ajax: {
@@ -105,7 +105,7 @@ $("#table_1").tableEditable({
 In the buttons object, you must specify the html code of the block with action buttons in different states (Default, Editing, Adding) and add button near dataTable search filter. You can change the markup presented here as you like, but keep the indexes of the buttons, otherwise they will not work.
 
 Example Add endpoint:
-```
+```php
 <?php
 include "connection.php";
 
@@ -119,7 +119,7 @@ if(!empty($_POST['name']) && !empty($_POST['email'])){
 All responses plugin perceives by {"success": *status*}. If it's not true, nothing will happen.
 
 Example Edit endpoint:
-```
+```php
 <?php
 include "incl/connection.php";
 
@@ -133,7 +133,7 @@ if(!empty($_POST['id']) && !empty($_POST['name']) && !empty($_POST['email']) && 
 ```
 
 Example Delete endpoint:
-```
+```php
 <?php
 include "../../incl/connection.php";
 
@@ -152,11 +152,11 @@ Since the plugin is open source, you can change anything in it if you understand
 For example, I will add a roles to a table. I also want to note, when you add or remove any columns in the table, then delete them in ajax files too, so that everything works properly. There is nothing difficult in this.
 
 Role values must be passed through get.php. Now let's do the necessary steps for the selector to work. Add Add required values to th in thead of table:
-```
+```html
 <th data-name="roleID" data-select="1" data-selector="selector1">Role</th>
 ```
-Here we set data-select="1" so that the plugin understands that it works with the selector, and also set data-selector="select1", which we will configure in the plugin options that we already set earlier. You can use any name. Add in tableEditable({}) this:
-```
+Here we set data-select="1" so that the plugin understands that it works with the selector, and also set data-selector="select1", which we will configure in the plugin options that we already set earlier. You can use any name. Add in initialization of plugin this:
+```javascript
 json: {
   selector1: [
     {
@@ -179,7 +179,7 @@ should equal what values you pass through Get table data endpoint, cause plugin 
 
 ### Options
 You can turn off, and turn on some options on plugin.
-```
+```javascript
 options: {
   add: false
 },
@@ -187,7 +187,7 @@ options: {
 
 ### Strings
 All strings you can change in the tableEditable.js, but I also added the ability to change the string that is displayed in the 'confirm' window when you click the delete button in the table. Just add this to the plugin options:
-```
+```javascript
 strings: {
   confirm: "Your string"
 },
