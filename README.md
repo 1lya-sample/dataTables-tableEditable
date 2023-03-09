@@ -1,4 +1,4 @@
-# tableEditable v1.3.2 dataTables
+# tableEditable v1.4.0 dataTables
 Plugin for dataTables - tableEditable by me
 
 Demo: https://1lya-sample.ml/tableEditable
