@@ -1,6 +1,8 @@
 # tableEditable v1.3.2 dataTables
 Plugin for dataTables - tableEditable by me
 
+Demo: https://1lya-sample.ml/tableEditable
+
 ## 1. Installing
 1. Download dataTables lib and install a dataTable in var with ajax getting data
 ```
