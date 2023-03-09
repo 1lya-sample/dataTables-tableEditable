@@ -4,7 +4,7 @@ Depends: JQuery, DataTables, Bootstrap (Optional)
 
 Demo: https://1lya-sample.ml/tableEditable
 
-## 1. Installing
+## 1. Get started
 1. Install dependency scripts to the page
 ```
 <!-- Datatables -->
@@ -17,6 +17,7 @@ Demo: https://1lya-sample.ml/tableEditable
 <script src="/js/dataTables.bootstrap4.min.js"></script>
 <script src="/js/tableEditable.js"></script>
 ```
+
 2. Create table (You can use any table identifier)
 ```
 <table id="table_1">
@@ -33,11 +34,15 @@ Demo: https://1lya-sample.ml/tableEditable
 </table>
 ```
 data-name is using to sending it with the post requests, but you can remove this and th will be only decoration
-
 data-editable is using to block editable. Use one or more on-editable th'es to identify your table entry in the ajax files
 
 This th is required for buttons Edit and Delete, don't forget it
-> <th></th>
+```
+<th></th>
+```
+
+Selectors are described in detail at the bottom of this readme.
+
 3. Setup dataTable in variable with an endpoint for getting data in a table
 ```
 const dataTable = $("#table_1").DataTable({
@@ -88,10 +93,17 @@ $("#table_1").tableEditable({
     edit: "ajax/edit.php",
     delete: ajax/delete.php"
   },
+  buttons: {
+   default: '<div class="te-buttons"><a class="btn" id="edit">Edit</a> <a class="btn" id="delete">Del</a></div>',
+   editing: '<div class="te-buttons"><a class="btn" id="save">Save</a> <a class="btn" id="delete">Del</a></div>',
+   adding: '<div class="te-buttons"><a class="btn" id="save_new">Done</a> <a class="btn" id="delete_new">Del</a></div>',
+   add: '<a class="btn" id="add">+</a>'
+  },
 });
 </script>
 ```
- 
+In the buttons object, you must specify the html code of the block with action buttons in different states (Default, Editing, Adding) and add button near dataTable search filter. You can change the markup presented here as you like, but keep the indexes of the buttons, otherwise they will not work.
+
 Example Add endpoint:
 ```
 <?php
@@ -163,7 +175,7 @@ json: {
 }
 ```
 You can add entries, change the id and name as you like, the main thing is that the two keys id and name remain. Selector1 - it's name that you indicated in thead. Id 
-should equal what values you pass through get.php to dataTable, cause the plugin, when it is launched, substitutes the names that we just indicated into the table.
+should equal what values you pass through Get table data endpoint, cause plugin substitutes the names that we just specified into the table when it starts.
 
 ### Options
 You can turn off, and turn on some options on plugin.
