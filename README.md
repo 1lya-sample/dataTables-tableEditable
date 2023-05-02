@@ -2,7 +2,7 @@
 Plugin for dataTables by me
 Depends: JQuery, DataTables, Bootstrap (Optional)
 
-Demo: https://1lya-sample.ml/tableEditable
+Demo: https://sample.golink.info/tableEditable
 
 ## 1. Get started
 1. Install dependency scripts to the page
