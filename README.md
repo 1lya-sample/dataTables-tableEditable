@@ -1,5 +1,6 @@
 # dataTables.tableEditable v1.4.0
 Plugin for dataTables by me
+
 Depends: JQuery, DataTables, Bootstrap (Optional)
 
 Demo: https://sample.golink.info/tableEditable
