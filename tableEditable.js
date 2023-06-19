@@ -14,27 +14,28 @@
 		});
 		
 		function update() {
-			$.each(table.find('tbody tr'), function(){
-				if(dataTable.data().any()){
-					$(this).children('td:last').html(options.buttons.default);
-				}
+			let rows = dataTable.rows().data()
+			$.each(rows, function(id){
+				let row = dataTable.row(id).nodes();
+				
+				$(row).children('td:last').html(options.buttons.default);
 			});
+			
 			$.each(table.find('thead tr th').not(':last'), function(index, th) {
 				if($(this).data("select") == true){
 					var selector = options.json[$(this).data('selector')];
-					$.each(table.find('tbody tr'), function(){
-						$.each($(this).children('td'), function(){
-							var cellindex = $(this).parent().children().index($(this));
-							if(index == cellindex){
-								var id = $(this).text();
-								var td = $(this);
-								selector.forEach(function(obj){
-									if(obj.id == id){
-										$(td).html(obj.name);
-									}
-								});
-							}
-						});
+					
+					$.each(dataTable.cells().nodes(), function(){
+						var cellindex = $(this).parent().children().index($(this));
+						if(index == cellindex){
+							var id = $(this).text();
+							var td = $(this);
+							selector.forEach((obj) => {
+								if(obj.id == id){
+									$(td).html(obj.name);
+								}
+							});
+						}
 					});
 				}
 			});
@@ -48,6 +49,7 @@
 				var editable = true;
 				var select = false;
 				var selector = '';
+				
 				$.each(table.find('thead tr th').not(':last'), function(index, th) {
 					if(index == cellindex){
 						if($(this).data("editable") == false){
@@ -80,6 +82,7 @@
 				}else{
 					input = "<input type='text' class='form-control' value='"+val+"' readonly>";
 				}
+				
 				$(this).html(input);
 			});
 			
