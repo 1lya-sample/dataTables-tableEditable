@@ -1,4 +1,4 @@
-# dataTables.tableEditable v1.4.0
+# dataTables.tableEditable v1.4.1
 Plugin for dataTables by me
 
 Depends: JQuery, DataTables, Bootstrap (Optional)
